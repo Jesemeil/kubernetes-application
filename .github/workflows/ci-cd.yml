@@ -21,11 +21,31 @@ jobs:
       - name: Build Application
         run: mvn clean package
 
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker build -t jesemeil/hello-kubernetes:latest .
           docker push jesemeil/hello-kubernetes:latest
+
+    outputs:
+      image: "jesemeil/hello-kubernetes:latest"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Configure Kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig
+          export KUBECONFIG=kubeconfig
 
       - name: Deploy to Kubernetes
         run: |
