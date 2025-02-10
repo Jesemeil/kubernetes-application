@@ -13,7 +13,7 @@ spec:
         app: hello-kubernetes
     spec:
       nodeSelector:
-        kubernetes.io/hostname: my-single-node  # Ensure all pods run on the same node
+        kubernetes.io/hostname: minikube  # Ensure all pods run on the correct node
       containers:
         - name: hello-kubernetes
           image: jesemeil/hello-kubernetes:latest
