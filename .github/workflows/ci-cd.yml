@@ -37,6 +37,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Set up Kubernetes Cluster (KinD)
+        run: |
+          curl -Lo kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+          chmod +x kind
+          sudo mv kind /usr/local/bin/
+          kind create cluster --name hello-k8s
+
       - name: Set up Kubectl
         uses: azure/setup-kubectl@v3
         with:
@@ -44,8 +51,12 @@ jobs:
 
       - name: Configure Kubeconfig
         run: |
-          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig
-          export KUBECONFIG=kubeconfig
+          mkdir -p $HOME/.kube
+          kind get kubeconfig --name hello-k8s > $HOME/.kube/config
+          export KUBECONFIG=$HOME/.kube/config
+
+      - name: Verify Kubernetes Cluster
+        run: kubectl cluster-info
 
       - name: Deploy to Kubernetes
         run: |
