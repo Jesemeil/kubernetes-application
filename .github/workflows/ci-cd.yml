@@ -62,9 +62,9 @@ jobs:
       - name: Verify Kubernetes Cluster
         run: kubectl cluster-info
 
-      - name: Update Kubernetes Deployment with New Image
+      - name: Update Kubernetes Deployment
         run: |
-          sed -i "s|image: jesemeil/hello-kubernetes:.*|image: jesemeil/hello-kubernetes:${{ needs.build.outputs.image }}|" k8s/deployment.yml
+          sed -i "s|image: jesemeil/hello-kubernetes.*|image: ${{ needs.build.outputs.image }}|" k8s/deployment.yml
           cat k8s/deployment.yml  # Debugging step to verify changes
           kubectl apply -f k8s/deployment.yml
           kubectl apply -f k8s/service.yml
